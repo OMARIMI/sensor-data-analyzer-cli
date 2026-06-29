@@ -1,0 +1,31 @@
+{
+  "source_file": "sample_data/readings.csv",
+  "sensors": {
+    "temperature_c": {
+      "count": 7,
+      "min": 22.5,
+      "max": 85.2,
+      "average": 33.34
+    },
+    "humidity_percent": {
+      "count": 7,
+      "min": 45.0,
+      "max": 52.0,
+      "average": 48.57
+    },
+    "vibration_g": {
+      "count": 8,
+      "min": 0.02,
+      "max": 0.2,
+      "average": 0.07
+    }
+  },
+  "invalid_data": [
+    "Line 7: missing value for temperature_c",
+    "Line 8: invalid number for humidity_percent: bad"
+  ],
+  "warnings": [
+    "Line 5: temperature_c is high: 85.2 > 80",
+    "Line 9: vibration_g is high: 0.2 > 0.15"
+  ]
+}
