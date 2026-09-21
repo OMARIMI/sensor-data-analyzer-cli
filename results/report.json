@@ -1,5 +1,10 @@
 {
-  "source_file": "sample_data/readings.csv",
+  "source_file": "sample_data\\readings.csv",
+  "thresholds": {
+    "temperature_c": 80,
+    "humidity_percent": 90,
+    "vibration_g": 0.15
+  },
   "sensors": {
     "temperature_c": {
       "count": 7,

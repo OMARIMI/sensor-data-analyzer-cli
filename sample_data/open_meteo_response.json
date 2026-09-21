@@ -1,0 +1,28 @@
+{
+  "source_url": "https://api.open-meteo.com/v1/forecast?latitude=40.7128&longitude=-74.0060&current=temperature_2m,relative_humidity_2m,wind_speed_10m&timezone=America%2FNew_York",
+  "http_status": 200,
+  "saved_at": "2026-09-21T16:00:00-04:00",
+  "response": {
+    "latitude": 40.710335,
+    "longitude": -73.99308,
+    "generationtime_ms": 0.05888938903808594,
+    "utc_offset_seconds": -14400,
+    "timezone": "America/New_York",
+    "timezone_abbreviation": "GMT-4",
+    "elevation": 32.0,
+    "current_units": {
+      "time": "iso8601",
+      "interval": "seconds",
+      "temperature_2m": "°C",
+      "relative_humidity_2m": "%",
+      "wind_speed_10m": "km/h"
+    },
+    "current": {
+      "time": "2026-09-21T16:00",
+      "interval": 900,
+      "temperature_2m": 21.9,
+      "relative_humidity_2m": 47,
+      "wind_speed_10m": 18.4
+    }
+  }
+}

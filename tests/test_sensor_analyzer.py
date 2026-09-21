@@ -9,7 +9,7 @@ import sensor_analyzer
 
 
 class SensorAnalyzerTests(unittest.TestCase):
-    def analyze_csv(self, csv_text):
+    def analyze_csv(self, csv_text, thresholds=None):
         with tempfile.TemporaryDirectory() as temp_dir:
             temp_path = Path(temp_dir)
             input_file = temp_path / "readings.csv"
@@ -17,7 +17,11 @@ class SensorAnalyzerTests(unittest.TestCase):
             input_file.write_text(csv_text, encoding="utf-8")
 
             with patch("builtins.print"):
-                sensor_analyzer.analyze_file(str(input_file), str(output_file))
+                sensor_analyzer.analyze_file(
+                    str(input_file),
+                    str(output_file),
+                    thresholds,
+                )
 
             return json.loads(output_file.read_text(encoding="utf-8"))
 
@@ -57,6 +61,17 @@ class SensorAnalyzerTests(unittest.TestCase):
 
         self.assertEqual(len(report["warnings"]), 3)
         self.assertIn("temperature_c is high", report["warnings"][0])
+
+    def test_custom_threshold_changes_warning_behavior(self):
+        report = self.analyze_csv(
+            "timestamp,temperature_c,humidity_percent,vibration_g\n"
+            "2026-06-01T10:00:00,25,45,0.02\n",
+            {"temperature_c": 24},
+        )
+
+        self.assertEqual(report["thresholds"]["temperature_c"], 24)
+        self.assertEqual(len(report["warnings"]), 1)
+        self.assertIn("25.0 > 24", report["warnings"][0])
 
     def test_empty_file_is_rejected(self):
         with tempfile.TemporaryDirectory() as temp_dir:

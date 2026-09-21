@@ -47,8 +47,9 @@ def load_csv(file_path):
         return rows
 
 
-def analyze_file(input_file, output_file):
+def analyze_file(input_file, output_file, thresholds=None):
     rows = load_csv(input_file)
+    active_thresholds = {**SENSORS, **(thresholds or {})}
 
     sensor_values = {
         "temperature_c": [],
@@ -60,7 +61,7 @@ def analyze_file(input_file, output_file):
     warnings = []
 
     for line_number, row in enumerate(rows, start=2):
-        for sensor_name, limit in SENSORS.items():
+        for sensor_name, limit in active_thresholds.items():
             raw_value = row.get(sensor_name, "")
 
             if raw_value == "":
@@ -85,6 +86,7 @@ def analyze_file(input_file, output_file):
 
     report = {
         "source_file": input_file,
+        "thresholds": active_thresholds,
         "sensors": {},
         "invalid_data": invalid_rows,
         "warnings": warnings,
@@ -145,11 +147,34 @@ def main(argv=None):
         default="results/report.json",
         help="Path to save the JSON report",
     )
+    parser.add_argument(
+        "--temperature-threshold",
+        type=float,
+        default=SENSORS["temperature_c"],
+        help="Warning threshold in degrees Celsius (default: 80)",
+    )
+    parser.add_argument(
+        "--humidity-threshold",
+        type=float,
+        default=SENSORS["humidity_percent"],
+        help="Warning threshold as a percentage (default: 90)",
+    )
+    parser.add_argument(
+        "--vibration-threshold",
+        type=float,
+        default=SENSORS["vibration_g"],
+        help="Warning threshold in g (default: 0.15)",
+    )
 
     args = parser.parse_args(argv)
+    thresholds = {
+        "temperature_c": args.temperature_threshold,
+        "humidity_percent": args.humidity_threshold,
+        "vibration_g": args.vibration_threshold,
+    }
 
     try:
-        analyze_file(args.input_file, args.output)
+        analyze_file(args.input_file, args.output, thresholds)
     except (FileNotFoundError, PermissionError, ValueError, csv.Error) as error:
         print(f"Error: {error}", file=sys.stderr)
         return 1

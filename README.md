@@ -33,14 +33,31 @@ Real engineering systems often collect messy sensor data. This project shows how
 python sensor_analyzer.py sample_data/readings.csv --output results/report.json
 ```
 
+Thresholds can be changed from the command line:
+
+```powershell
+python sensor_analyzer.py sample_data/readings.csv --temperature-threshold 30 --humidity-threshold 85 --vibration-threshold 0.10
+```
+
+## Public HTTP Data Example
+
+The project includes a saved response from the public Open-Meteo API for
+repeatable use without an API key. Add `--live` to make a real HTTP request.
+
+```powershell
+python weather_data.py
+python weather_data.py --live
+```
+
 ## Run Tests
 
 ```powershell
 python -m unittest discover -s tests
 ```
 
-The automated suite covers normal data, exact threshold boundaries, an empty
-file, a malformed value, a wrong-unit column, statistics, and safe CLI errors.
+The 13-test suite covers normal data, configurable thresholds, exact threshold
+boundaries, an empty file, a malformed value, a wrong-unit column, statistics,
+saved weather data, and safe CLI errors.
 
 ## Input Format
 
@@ -61,6 +78,11 @@ kept in separate lists.
 ```json
 {
   "source_file": "sample_data/readings.csv",
+  "thresholds": {
+    "temperature_c": 80,
+    "humidity_percent": 90,
+    "vibration_g": 0.15
+  },
   "sensors": {
     "temperature_c": {
       "count": 1,
@@ -98,10 +120,15 @@ results/report.json
 
 ```text
 sensor_analyzer.py
+weather_data.py
 sample_data/readings.csv
+sample_data/open_meteo_response.json
+sample_data/broken/
 results/report.json
 tests/test_sensor_analyzer.py
+tests/test_weather_data.py
 docs/architecture.md
+docs/demo.md
 docs/reflection.md
 README.md
 .gitignore
@@ -111,11 +138,12 @@ requirements.txt
 ## Documentation
 
 - `docs/architecture.md` explains how the program is organized.
+- `docs/demo.md` records verified success, HTTP, and failure demonstrations.
 - `docs/reflection.md` explains what was learned and what could be improved.
 
 ## Current Status
 
-Working CLI prototype with automated tests and documentation.
+Module 2 project checkpoints complete with automated tests and documentation.
 
 Completed:
 
@@ -123,16 +151,24 @@ Completed:
 - validates missing and invalid values
 - calculates count, min, max, and average
 - detects threshold warnings
+- accepts configurable thresholds from the command line
 - saves a JSON report
-- includes automated tests
-- includes architecture and reflection docs
+- reads saved or live public weather data without an API key
+- includes 13 automated tests
+- includes architecture, demo, and reflection docs
 
 ## Honest Limitations
 
 - Only supports CSV right now.
-- Sensor names and thresholds are hardcoded.
 - JSON input support has not been added yet.
-- Custom threshold settings have not been added yet.
+- Sensor names are fixed to the three documented columns.
+- The weather example uses fixed New York coordinates.
+
+## Safety and Privacy
+
+- No API key or secret is required or stored.
+- The example data is public weather and synthetic sensor data.
+- Invalid files return understandable errors without exposing a traceback.
 
 ## AI Assistance Disclosure
 
