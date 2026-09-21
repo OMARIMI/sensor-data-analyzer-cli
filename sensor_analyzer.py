@@ -1,6 +1,7 @@
 ﻿import argparse
 import csv
 import json
+import sys
 from pathlib import Path
 
 SENSORS = {
@@ -22,9 +23,28 @@ def analyze_sensor(values):
 
 
 def load_csv(file_path):
-    with open(file_path, "r", newline="") as file:
+    with open(file_path, "r", newline="", encoding="utf-8-sig") as file:
         reader = csv.DictReader(file)
-        return list(reader)
+
+        if reader.fieldnames is None:
+            raise ValueError("Input CSV is empty or missing a header row.")
+
+        required_columns = ["timestamp", *SENSORS]
+        missing_columns = [
+            name for name in required_columns if name not in reader.fieldnames
+        ]
+        if missing_columns:
+            missing = ", ".join(missing_columns)
+            raise ValueError(
+                f"Missing required sensor columns: {missing}. "
+                "Sensor units are encoded in the column names."
+            )
+
+        rows = list(reader)
+        if not rows:
+            raise ValueError("Input CSV contains no sensor readings.")
+
+        return rows
 
 
 def analyze_file(input_file, output_file):
@@ -110,14 +130,14 @@ def analyze_file(input_file, output_file):
     output_path = Path(output_file)
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    with open(output_path, "w") as file:
+    with open(output_path, "w", encoding="utf-8") as file:
         json.dump(report, file, indent=2)
 
     print()
     print(f"Saved report to {output_file}")
 
 
-def main():
+def main(argv=None):
     parser = argparse.ArgumentParser(description="Analyze sensor data from a CSV file.")
     parser.add_argument("input_file", help="Path to the input CSV sensor file")
     parser.add_argument(
@@ -126,9 +146,16 @@ def main():
         help="Path to save the JSON report",
     )
 
-    args = parser.parse_args()
-    analyze_file(args.input_file, args.output)
+    args = parser.parse_args(argv)
+
+    try:
+        analyze_file(args.input_file, args.output)
+    except (FileNotFoundError, PermissionError, ValueError, csv.Error) as error:
+        print(f"Error: {error}", file=sys.stderr)
+        return 1
+
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())
